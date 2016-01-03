@@ -1,10 +1,15 @@
 import unittest
 import leveldb
 
+import logging
 import tempfile
 from triangle import Triangle
 
 import mock
+
+logger = logging.getLogger('triangle')
+logger.setLevel(logging.DEBUG)
+logger.addHandler(logging.StreamHandler())
 
 
 class TriangleTest(unittest.TestCase):
@@ -55,6 +60,16 @@ class TriangleTest(unittest.TestCase):
             ('Daniel', 'loves', 'Cheese'),
             ('Daniel', 'loves', 'Sushi')
         })
+
+    def test_exception_rolls_back(self):
+        try:
+            with self.triangle.batch_insert() as f:
+                f.insert(s='Daniel', p='loves', o='Cheese')
+                f.insert(s='Daniel', p='loves', o='Sushi')
+                0/0
+        except ZeroDivisionError:
+            pass
+        self.assertEqual(len(set(self.triangle.start(s='Daniel'))), 0)
 
 
 if __name__ == '__main__':

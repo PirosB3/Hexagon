@@ -1,8 +1,13 @@
 import leveldb
 import itertools
+import logging
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 SEPARATOR = '::'
 DEFAULT_PREFIX = 'spo'
+
 
 def _insert_permutations(insertion_kv, writer):
     for winding_order in itertools.permutations('spo'):
@@ -73,7 +78,10 @@ class BatchInsertStatement(object):
         return _insert_permutations(kwargs, self.batch)
 
     def __exit__(self, type, value, traceback):
-        if not traceback:
+        if traceback is not None:
+            logger.error("An exception occured while performing a Triangle "
+                         "transaction and therefore will roll-back")
+        else:
             return self.db.Write(self.batch, sync=True)
 
     def __enter__(self):
@@ -94,4 +102,3 @@ class Triangle(object):
 
     def batch_insert(self):
         return BatchInsertStatement(self.db)
-
