@@ -41,11 +41,19 @@ class TriangleTest(unittest.TestCase):
         })
 
     def test_retreival_2(self):
-        import ipdb; ipdb.set_trace()
         self.triangle.insert(s='Daniel', p='loves', o='Cheese')
         self.triangle.insert(s='Daniel', p='loves', o='Sushi')
         self.assertEqual(set(self.triangle.start(s='Daniel').traverse(o='Cheese')), {
             ('Daniel', 'loves', 'Cheese'),
+        })
+
+    def test_batch_insert(self):
+        with self.triangle.batch_insert() as f:
+            f.insert(s='Daniel', p='loves', o='Cheese')
+            f.insert(s='Daniel', p='loves', o='Sushi')
+        self.assertEqual(set(self.triangle.start(s='Daniel')), {
+            ('Daniel', 'loves', 'Cheese'),
+            ('Daniel', 'loves', 'Sushi')
         })
 
 

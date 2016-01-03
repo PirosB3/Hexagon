@@ -1,7 +1,15 @@
+import leveldb
 import itertools
 
 SEPARATOR = '::'
 DEFAULT_PREFIX = 'spo'
+
+def _insert_permutations(insertion_kv, writer):
+    for winding_order in itertools.permutations('spo'):
+        ordered_values = [insertion_kv[k] for k in winding_order]
+        key = (''.join(winding_order) + SEPARATOR +
+               SEPARATOR.join(ordered_values))
+        writer.Put(key, '')
 
 
 class EmptyQueryException(Exception):
@@ -41,6 +49,7 @@ class FixedPointTransaction(object):
             return prefix, prefix + SEPARATOR + SEPARATOR.join(vs)
 
     def __iter__(self):
+        prefix_pair_sort = lambda x: DEFAULT_PREFIX.index(x[1])
         prefix, query = self._generate_query_key()
         for item_k, item_v in self.db.RangeIter(query):
             pair = item_k.split(SEPARATOR)[1:]
@@ -49,8 +58,26 @@ class FixedPointTransaction(object):
                 raise StopIteration()
 
             prefixed_pair = zip(pair, prefix)
-            prefixed_pair.sort(key=lambda x: DEFAULT_PREFIX.index(x[1]))
+            prefixed_pair.sort(key=prefix_pair_sort)
             yield tuple(p[0] for p in prefixed_pair)
+
+
+class BatchInsertStatement(object):
+
+    def __init__(self, db):
+        self.db = db
+        self.batch = leveldb.WriteBatch()
+
+    def insert(self, **kwargs):
+        assert set(kwargs.keys()) == {'s', 'p', 'o'}
+        return _insert_permutations(kwargs, self.batch)
+
+    def __exit__(self, type, value, traceback):
+        if not traceback:
+            return self.db.Write(self.batch, sync=True)
+
+    def __enter__(self):
+        return self
 
 
 class Triangle(object):
@@ -59,11 +86,12 @@ class Triangle(object):
         self.db = db
 
     def insert(self, **kwargs):
-        for winding_order in itertools.permutations('spo'):
-            ordered_values = [kwargs[k] for k in winding_order]
-            key = (''.join(winding_order) + SEPARATOR +
-                   SEPARATOR.join(ordered_values))
-            self.db.Put(key, '')
+        assert set(kwargs.keys()) == {'s', 'p', 'o'}
+        return _insert_permutations(kwargs, self.db)
 
     def start(self, **kwargs):
         return FixedPointTransaction(self.db, **kwargs)
+
+    def batch_insert(self):
+        return BatchInsertStatement(self.db)
+
