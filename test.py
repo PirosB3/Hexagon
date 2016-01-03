@@ -41,6 +41,7 @@ class TriangleTest(unittest.TestCase):
         })
 
     def test_retreival_2(self):
+        import ipdb; ipdb.set_trace()
         self.triangle.insert(s='Daniel', p='loves', o='Cheese')
         self.triangle.insert(s='Daniel', p='loves', o='Sushi')
         self.assertEqual(set(self.triangle.start(s='Daniel').traverse(o='Cheese')), {
