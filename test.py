@@ -40,6 +40,13 @@ class TriangleTest(unittest.TestCase):
             ('Daniel', 'loves', 'Sushi')
         })
 
+    def test_retreival_2(self):
+        self.triangle.insert(s='Daniel', p='loves', o='Cheese')
+        self.triangle.insert(s='Daniel', p='loves', o='Sushi')
+        self.assertEqual(set(self.triangle.start(s='Daniel').traverse(o='Cheese')), {
+            ('Daniel', 'loves', 'Cheese'),
+        })
+
 
 if __name__ == '__main__':
     unittest.main()

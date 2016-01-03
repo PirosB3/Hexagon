@@ -10,9 +10,15 @@ class EmptyQueryException(Exception):
 
 class FixedPointTransaction(object):
     SINGLE_QUERY_KEYS = {
-        's': 'spo',
-        'p': 'pso',
+        'ps': 'pso',
+        'sp': 'spo',
         'o': 'osp',
+        'p': 'pso',
+        's': 'spo',
+        'so': 'sop',
+        'os': 'osp',
+        'po': 'pos',
+        'op': 'ops'
     }
 
     def __init__(self, db, *args, **kwargs):
@@ -22,13 +28,16 @@ class FixedPointTransaction(object):
             if pt in ['s', 'p', 'o']:
                 self.query[pt] = pt_value
 
+    def traverse(self, *args, **kwargs):
+        return FixedPointTransaction(self.db, **dict(self.query, **kwargs))
+
     def _generate_query_key(self):
         if len(self.query) == 0:
             raise EmptyQueryException(self.query)
 
         ks, vs = zip(*self.query.iteritems())
-        if len(ks) == 1:
-            prefix = self.SINGLE_QUERY_KEYS[ks[0]]
+        if len(ks) < 3:
+            prefix = self.SINGLE_QUERY_KEYS[''.join(ks)]
             return prefix, prefix + SEPARATOR + SEPARATOR.join(vs)
 
     def __iter__(self):
@@ -36,7 +45,7 @@ class FixedPointTransaction(object):
         for item_k, item_v in self.db.RangeIter(query):
             pair = item_k.split(SEPARATOR)[1:]
 
-            if not item_k.startswith(prefix):
+            if not item_k.startswith(query):
                 raise StopIteration()
 
             prefixed_pair = zip(pair, prefix)
