@@ -119,7 +119,9 @@ class Triangle(object):
 
     def insert(self, **kwargs):
         assert set(kwargs.keys()) == {'s', 'p', 'o'}
-        return _insert_permutations(kwargs, self.db)
+        batch = leveldb.WriteBatch()
+        _insert_permutations(kwargs, batch)
+        self.db.Write(batch, sync=True)
 
     def start(self, **kwargs):
         return FixedPointTransaction(self.db, **kwargs)

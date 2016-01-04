@@ -26,17 +26,19 @@ class TriangleTest(unittest.TestCase):
         self.assertTrue(self.triangle)
 
     def test_insertion(self):
+        wb = mock.Mock()
         self.triangle.db = mock.Mock()
-        self.triangle.insert(s='Daniel', p='loves', o='Cheese')
-        self.assertEqual(
-            set(i[0][0] for i in self.triangle.db.Put.call_args_list),
-            {'spo::Daniel::loves::Cheese',
-             'sop::Daniel::Cheese::loves',
-             'pso::loves::Daniel::Cheese',
-             'pos::loves::Cheese::Daniel',
-             'osp::Cheese::Daniel::loves',
-             'ops::Cheese::loves::Daniel'}
-        )
+        with mock.patch('triangle.leveldb.WriteBatch', return_value=wb):
+            self.triangle.insert(s='Daniel', p='loves', o='Cheese')
+            self.assertEqual(
+                sorted(i[0][0] for i in wb.Put.call_args_list),
+                sorted(['spo::Daniel::loves::Cheese',
+                        'sop::Daniel::Cheese::loves',
+                        'pso::loves::Daniel::Cheese',
+                        'pos::loves::Cheese::Daniel',
+                        'osp::Cheese::Daniel::loves',
+                        'ops::Cheese::loves::Daniel'])
+            )
 
     def test_retreival(self):
         self.triangle.insert(s='Daniel', p='loves', o='Cheese')
