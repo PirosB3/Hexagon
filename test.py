@@ -6,6 +6,8 @@ import tempfile
 from triangle import Triangle
 
 import mock
+import os
+import json
 
 logger = logging.getLogger('triangle')
 logger.setLevel(logging.DEBUG)
@@ -70,6 +72,40 @@ class TriangleTest(unittest.TestCase):
         except ZeroDivisionError:
             pass
         self.assertEqual(len(set(self.triangle.start(s='Daniel'))), 0)
+
+    def test_graph_of_the_gods(self):
+        path = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            'data/graph_of_the_gods.json'
+        )
+        with open(path) as f:
+            graph = json.loads(f.read())
+
+            vertex_map = {}
+            for v in graph['node']:
+                vertex_map[v['-id']] = v['data'][1]['#text'] + ':' + v['data'][0]['#text']
+
+            with self.triangle.batch_insert() as h:
+                for e in graph['edge']:
+                    s = vertex_map[e['-source']]
+                    o = vertex_map[e['-target']]
+                    p = e['-label']
+                    h.insert(s=s, p=p, o=o)
+
+        # Where do gods live?
+        self.assertEqual(
+            set(self.triangle.start(s='god').traverse(p='lives')),
+            {('god:jupiter', 'lives', 'location:sky'),
+             ('god:neptune', 'lives', 'location:sea'),
+             ('god:pluto', 'lives', 'location:tartarus')}
+        )
+
+        # Usually gods live in the sky
+        self.assertEqual(
+            set(self.triangle.start(s='god').traverse(p='lives').traverse(o='location:sky')),
+            {('god:jupiter', 'lives', 'location:sky')}
+        )
+
 
 
 if __name__ == '__main__':

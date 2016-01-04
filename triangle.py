@@ -3,7 +3,6 @@ import itertools
 import logging
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
 
 SEPARATOR = '::'
 DEFAULT_PREFIX = 'spo'
@@ -49,9 +48,10 @@ class FixedPointTransaction(object):
             raise EmptyQueryException(self.query)
 
         ks, vs = zip(*self.query.iteritems())
-        if len(ks) < 3:
-            prefix = self.SINGLE_QUERY_KEYS[''.join(ks)]
-            return prefix, prefix + SEPARATOR + SEPARATOR.join(vs)
+        prefix = ''.join(ks)
+        if len(prefix) < 3:
+            prefix = self.SINGLE_QUERY_KEYS[''.join(prefix)]
+        return prefix, prefix + SEPARATOR + SEPARATOR.join(vs)
 
     def __iter__(self):
         prefix_pair_sort = lambda x: DEFAULT_PREFIX.index(x[1])
