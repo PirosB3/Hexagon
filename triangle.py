@@ -10,6 +10,10 @@ DEFAULT_PREFIX = 'spo'
 
 
 def _computer_ordered_values_set(ordered_values, pos=0):
+    """
+    Computes triples with all levels of precision possible.
+    Returns a list of triples in DEFAULT_PREFIX order
+    """
     if pos == 3:
         return []
     current = [ordered_values[pos:pos+1]]
@@ -34,8 +38,13 @@ def _insert_permutations(insertion_kv, writer):
     value = tuple(insertion_kv[k] for k in DEFAULT_PREFIX)
     serialized_value = pickle.dumps(value)
 
+    # Generate all possible triple permutations
     for winding_order in itertools.permutations('spo'):
+        
+        # Order values by triple order
         ordered_values = [insertion_kv[k] for k in winding_order]
+        
+        # Compute triples to persist
         for order in _computer_ordered_values_set(ordered_values):
             key = (''.join(winding_order) + SEPARATOR + SEPARATOR.join(order))
             writer.Put(key, serialized_value)
