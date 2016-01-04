@@ -4,6 +4,7 @@ import leveldb
 import logging
 import tempfile
 from triangle import Triangle
+from utils import *
 
 import mock
 import os
@@ -17,7 +18,8 @@ logger.addHandler(logging.StreamHandler())
 class TriangleTest(unittest.TestCase):
 
     def setUp(self):
-        db = leveldb.LevelDB(tempfile.mktemp('.ldb'))
+        path = tempfile.mktemp('.ldb')
+        db = leveldb.LevelDB(path)
         self.triangle = Triangle(db)
 
     def test_it_exists(self):
@@ -106,6 +108,11 @@ class TriangleTest(unittest.TestCase):
             [('god:jupiter', 'lives', 'location:sky')]
         )
 
+        result = (
+            vs(self.triangle.start(s='demigod')) &
+            vs(self.triangle.start(p='mother').traverse(o='human:alcmene'))
+        )
+        self.assertEqual(result, {'demigod:hercules'})
 
 
 if __name__ == '__main__':
