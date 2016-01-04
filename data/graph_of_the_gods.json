@@ -1,0 +1,278 @@
+{
+  "-id": "G",
+  "-edgedefault": "directed",
+  "node": [
+    {
+      "-id": "3",
+      "data": [
+        {
+          "-key": "name",
+          "#text": "pluto"
+        },
+        {
+          "-key": "type",
+          "#text": "god"
+        }
+      ]
+    },
+    {
+      "-id": "2",
+      "data": [
+        {
+          "-key": "name",
+          "#text": "neptune"
+        },
+        {
+          "-key": "type",
+          "#text": "god"
+        }
+      ]
+    },
+    {
+      "-id": "10",
+      "data": [
+        {
+          "-key": "name",
+          "#text": "hydra"
+        },
+        {
+          "-key": "type",
+          "#text": "monster"
+        }
+      ]
+    },
+    {
+      "-id": "1",
+      "data": [
+        {
+          "-key": "name",
+          "#text": "jupiter"
+        },
+        {
+          "-key": "type",
+          "#text": "god"
+        }
+      ]
+    },
+    {
+      "-id": "0",
+      "data": [
+        {
+          "-key": "name",
+          "#text": "saturn"
+        },
+        {
+          "-key": "type",
+          "#text": "titan"
+        }
+      ]
+    },
+    {
+      "-id": "7",
+      "data": [
+        {
+          "-key": "name",
+          "#text": "hercules"
+        },
+        {
+          "-key": "type",
+          "#text": "demigod"
+        }
+      ]
+    },
+    {
+      "-id": "6",
+      "data": [
+        {
+          "-key": "name",
+          "#text": "tartarus"
+        },
+        {
+          "-key": "type",
+          "#text": "location"
+        }
+      ]
+    },
+    {
+      "-id": "5",
+      "data": [
+        {
+          "-key": "name",
+          "#text": "sea"
+        },
+        {
+          "-key": "type",
+          "#text": "location"
+        }
+      ]
+    },
+    {
+      "-id": "4",
+      "data": [
+        {
+          "-key": "name",
+          "#text": "sky"
+        },
+        {
+          "-key": "type",
+          "#text": "location"
+        }
+      ]
+    },
+    {
+      "-id": "9",
+      "data": [
+        {
+          "-key": "name",
+          "#text": "nemean"
+        },
+        {
+          "-key": "type",
+          "#text": "monster"
+        }
+      ]
+    },
+    {
+      "-id": "8",
+      "data": [
+        {
+          "-key": "name",
+          "#text": "alcmene"
+        },
+        {
+          "-key": "type",
+          "#text": "human"
+        }
+      ]
+    },
+    {
+      "-id": "11",
+      "data": [
+        {
+          "-key": "name",
+          "#text": "cerberus"
+        },
+        {
+          "-key": "type",
+          "#text": "monster"
+        }
+      ]
+    }
+  ],
+  "edge": [
+    {
+      "-id": "23",
+      "-source": "3",
+      "-target": "11",
+      "-label": "pet"
+    },
+    {
+      "-id": "21",
+      "-source": "3",
+      "-target": "6",
+      "-label": "lives"
+    },
+    {
+      "-id": "17",
+      "-source": "3",
+      "-target": "1",
+      "-label": "brother"
+    },
+    {
+      "-id": "18",
+      "-source": "3",
+      "-target": "2",
+      "-label": "brother"
+    },
+    {
+      "-id": "20",
+      "-source": "2",
+      "-target": "5",
+      "-label": "lives"
+    },
+    {
+      "-id": "19",
+      "-source": "2",
+      "-target": "3",
+      "-label": "brother"
+    },
+    {
+      "-id": "15",
+      "-source": "2",
+      "-target": "1",
+      "-label": "brother"
+    },
+    {
+      "-id": "13",
+      "-source": "1",
+      "-target": "4",
+      "-label": "lives"
+    },
+    {
+      "-id": "16",
+      "-source": "1",
+      "-target": "3",
+      "-label": "brother"
+    },
+    {
+      "-id": "14",
+      "-source": "1",
+      "-target": "2",
+      "-label": "brother"
+    },
+    {
+      "-id": "12",
+      "-source": "1",
+      "-target": "0",
+      "-label": "father"
+    },
+    {
+      "-id": "25",
+      "-source": "7",
+      "-target": "8",
+      "-label": "mother"
+    },
+    {
+      "-id": "26",
+      "-source": "7",
+      "-target": "9",
+      "-label": "battled",
+      "data": {
+        "-key": "time",
+        "#text": "1"
+      }
+    },
+    {
+      "-id": "27",
+      "-source": "7",
+      "-target": "10",
+      "-label": "battled",
+      "data": {
+        "-key": "time",
+        "#text": "2"
+      }
+    },
+    {
+      "-id": "28",
+      "-source": "7",
+      "-target": "11",
+      "-label": "battled",
+      "data": {
+        "-key": "time",
+        "#text": "12"
+      }
+    },
+    {
+      "-id": "24",
+      "-source": "7",
+      "-target": "1",
+      "-label": "father"
+    },
+    {
+      "-id": "22",
+      "-source": "11",
+      "-target": "6",
+      "-label": "lives"
+    }
+  ]
+}
