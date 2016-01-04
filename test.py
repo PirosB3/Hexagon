@@ -27,13 +27,13 @@ class TriangleTest(unittest.TestCase):
         self.triangle.db = mock.Mock()
         self.triangle.insert(s='Daniel', p='loves', o='Cheese')
         self.assertEqual(
-            set(i[0] for i in self.triangle.db.Put.call_args_list),
-            {('spo::Daniel::loves::Cheese', ''),
-             ('sop::Daniel::Cheese::loves', ''),
-             ('pso::loves::Daniel::Cheese', ''),
-             ('pos::loves::Cheese::Daniel', ''),
-             ('osp::Cheese::Daniel::loves', ''),
-             ('ops::Cheese::loves::Daniel', '')}
+            set(i[0][0] for i in self.triangle.db.Put.call_args_list),
+            {'spo::Daniel::loves::Cheese',
+             'sop::Daniel::Cheese::loves',
+             'pso::loves::Daniel::Cheese',
+             'pos::loves::Cheese::Daniel',
+             'osp::Cheese::Daniel::loves',
+             'ops::Cheese::loves::Daniel'}
         )
 
     def test_retreival(self):
@@ -94,16 +94,16 @@ class TriangleTest(unittest.TestCase):
 
         # Where do gods live?
         self.assertEqual(
-            set(self.triangle.start(s='god').traverse(p='lives')),
-            {('god:jupiter', 'lives', 'location:sky'),
-             ('god:neptune', 'lives', 'location:sea'),
-             ('god:pluto', 'lives', 'location:tartarus')}
+            sorted(list(self.triangle.start(s='god').traverse(p='lives'))),
+            sorted([('god:jupiter', 'lives', 'location:sky'),
+                   ('god:neptune', 'lives', 'location:sea'),
+                   ('god:pluto', 'lives', 'location:tartarus')])
         )
 
         # Usually gods live in the sky
         self.assertEqual(
-            set(self.triangle.start(s='god').traverse(p='lives').traverse(o='location:sky')),
-            {('god:jupiter', 'lives', 'location:sky')}
+            list(self.triangle.start(s='god').traverse(p='lives').traverse(o='location:sky')),
+            [('god:jupiter', 'lives', 'location:sky')]
         )
 
 

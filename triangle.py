@@ -1,6 +1,7 @@
 import leveldb
 import itertools
 import logging
+import pickle
 
 logger = logging.getLogger(__name__)
 
@@ -8,12 +9,36 @@ SEPARATOR = '::'
 DEFAULT_PREFIX = 'spo'
 
 
+def _computer_ordered_values_set(ordered_values, pos=0):
+    if pos == 3:
+        return []
+    current = [ordered_values[pos:pos+1]]
+    if ':' in ordered_values[pos]:
+        items = ordered_values[pos].split(':')
+        for i in xrange(1, len(items)):
+            current.append([':'.join(items[:i])])
+
+    other = _computer_ordered_values_set(ordered_values, pos+1)
+    if len(other) == 0:
+        return current
+
+    result = []
+    for c in current:
+        for o in other:
+            result.append(c+o)
+
+    return result
+
+
 def _insert_permutations(insertion_kv, writer):
+    value = tuple(insertion_kv[k] for k in DEFAULT_PREFIX)
+    serialized_value = pickle.dumps(value)
+
     for winding_order in itertools.permutations('spo'):
         ordered_values = [insertion_kv[k] for k in winding_order]
-        key = (''.join(winding_order) + SEPARATOR +
-               SEPARATOR.join(ordered_values))
-        writer.Put(key, '')
+        for order in _computer_ordered_values_set(ordered_values):
+            key = (''.join(winding_order) + SEPARATOR + SEPARATOR.join(order))
+            writer.Put(key, serialized_value)
 
 
 class EmptyQueryException(Exception):
@@ -54,17 +79,16 @@ class FixedPointTransaction(object):
         return prefix, prefix + SEPARATOR + SEPARATOR.join(vs)
 
     def __iter__(self):
-        prefix_pair_sort = lambda x: DEFAULT_PREFIX.index(x[1])
+        seen = set()
         prefix, query = self._generate_query_key()
         for item_k, item_v in self.db.RangeIter(query):
-            pair = item_k.split(SEPARATOR)[1:]
 
             if not item_k.startswith(query):
                 raise StopIteration()
 
-            prefixed_pair = zip(pair, prefix)
-            prefixed_pair.sort(key=prefix_pair_sort)
-            yield tuple(p[0] for p in prefixed_pair)
+            if item_v not in seen:
+                seen.add(item_v)
+                yield pickle.loads(item_v)
 
 
 class BatchInsertStatement(object):
