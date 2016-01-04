@@ -40,10 +40,10 @@ def _insert_permutations(insertion_kv, writer):
 
     # Generate all possible triple permutations
     for winding_order in itertools.permutations('spo'):
-        
+
         # Order values by triple order
         ordered_values = [insertion_kv[k] for k in winding_order]
-        
+
         # Compute triples to persist
         for order in _computer_ordered_values_set(ordered_values):
             key = (''.join(winding_order) + SEPARATOR + SEPARATOR.join(order))
