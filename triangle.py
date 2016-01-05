@@ -39,7 +39,7 @@ def _insert_permutations(insertion_kv, writer):
     serialized_value = pickle.dumps(value)
 
     # Generate all possible triple permutations
-    for winding_order in itertools.permutations('spo'):
+    for winding_order in itertools.permutations(DEFAULT_PREFIX):
 
         # Order values by triple order
         ordered_values = [insertion_kv[k] for k in winding_order]
@@ -71,7 +71,7 @@ class FixedPointTransaction(object):
         self.db = db
         self.query = {}
         for pt, pt_value in kwargs.iteritems():
-            if pt in ['s', 'p', 'o']:
+            if pt in DEFAULT_PREFIX:
                 self.query[pt] = pt_value
 
     def traverse(self, *args, **kwargs):
@@ -107,7 +107,7 @@ class BatchInsertStatement(object):
         self.batch = leveldb.WriteBatch()
 
     def insert(self, **kwargs):
-        assert set(kwargs.keys()) == {'s', 'p', 'o'}
+        assert set(kwargs.keys()) == set(DEFAULT_PREFIX)
         return _insert_permutations(kwargs, self.batch)
 
     def __exit__(self, type, value, traceback):
