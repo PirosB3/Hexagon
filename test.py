@@ -3,24 +3,24 @@ import leveldb
 
 import logging
 import tempfile
-from triangle import Triangle
-from utils import *
+from hexagon import Hexagon
+from hexagon.utils import *
 
 import mock
 import os
 import json
 
-logger = logging.getLogger('triangle')
+logger = logging.getLogger('hexagon')
 logger.setLevel(logging.DEBUG)
 logger.addHandler(logging.StreamHandler())
 
 
-class TriangleTest(unittest.TestCase):
+class HexagonTest(unittest.TestCase):
 
     def setUp(self):
         path = tempfile.mktemp('.ldb')
         db = leveldb.LevelDB(path)
-        self.triangle = Triangle(db)
+        self.triangle = Hexagon(db)
 
     def test_it_exists(self):
         self.assertTrue(self.triangle)
@@ -28,7 +28,7 @@ class TriangleTest(unittest.TestCase):
     def test_insertion(self):
         wb = mock.Mock()
         self.triangle.db = mock.Mock()
-        with mock.patch('triangle.leveldb.WriteBatch', return_value=wb):
+        with mock.patch('hexagon.core.leveldb.WriteBatch', return_value=wb):
             self.triangle.insert(s='Daniel', p='loves', o='Cheese')
             self.assertEqual(
                 sorted(i[0][0] for i in wb.Put.call_args_list),

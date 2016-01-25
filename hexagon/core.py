@@ -121,7 +121,7 @@ class BatchInsertStatement(object):
         return self
 
 
-class Triangle(object):
+class Hexagon(object):
 
     def __init__(self, db):
         self.db = db
