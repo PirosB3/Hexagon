@@ -18,16 +18,12 @@ logger.addHandler(logging.StreamHandler())
 class HexagonTest(unittest.TestCase):
 
     def setUp(self):
-        path = tempfile.mktemp('.ldb')
-        db = leveldb.LevelDB(path)
-        self.triangle = Hexagon(db)
-
-    def test_it_exists(self):
-        self.assertTrue(self.triangle)
+        path = tempfile.mktemp('.tmp')
+        self.triangle = Hexagon(path)
 
     def test_insertion(self):
         wb = mock.Mock()
-        self.triangle.db = mock.Mock()
+        self.triangle.relations_db = mock.Mock()
         with mock.patch('hexagon.core.leveldb.WriteBatch', return_value=wb):
             self.triangle.insert(s='Daniel', p='loves', o='Cheese')
             self.assertEqual(
@@ -66,6 +62,10 @@ class HexagonTest(unittest.TestCase):
             ('Daniel', 'loves', 'Cheese'),
             ('Daniel', 'loves', 'Sushi')
         })
+
+        self.assertEqual(list(self.triangle.subjects()), ['Daniel'])
+        self.assertEqual(list(self.triangle.predicates()), ['loves'])
+        self.assertEqual(list(self.triangle.objects()), ['Cheese', 'Sushi'])
 
     def test_exception_rolls_back(self):
         try:

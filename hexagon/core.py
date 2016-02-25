@@ -34,7 +34,7 @@ def _computer_ordered_values_set(ordered_values, pos=0):
     return result
 
 
-def _insert_permutations(insertion_kv, writer):
+def _insert_permutations(insertion_kv, writer, single_writers):
     value = tuple(insertion_kv[k] for k in DEFAULT_PREFIX)
     serialized_value = pickle.dumps(value)
 
@@ -48,6 +48,9 @@ def _insert_permutations(insertion_kv, writer):
         for order in _computer_ordered_values_set(ordered_values):
             key = (''.join(winding_order) + SEPARATOR + SEPARATOR.join(order))
             writer.Put(key, serialized_value)
+
+    for item, writer in single_writers.iteritems():
+        writer.Put(insertion_kv[item], '')
 
 
 class EmptyQueryException(Exception):
@@ -102,13 +105,15 @@ class FixedPointTransaction(object):
 
 class BatchInsertStatement(object):
 
-    def __init__(self, db):
+    def __init__(self, db, single_writers):
         self.db = db
         self.batch = leveldb.WriteBatch()
+        self.single_writers = single_writers
 
     def insert(self, **kwargs):
         assert set(kwargs.keys()) == set(DEFAULT_PREFIX)
-        return _insert_permutations(kwargs, self.batch)
+        return _insert_permutations(kwargs, self.batch,
+                                    self.single_writers)
 
     def __exit__(self, type, value, traceback):
         if traceback is not None:
@@ -123,17 +128,34 @@ class BatchInsertStatement(object):
 
 class Hexagon(object):
 
-    def __init__(self, db):
-        self.db = db
+    def __init__(self, path):
+        self.relations_db = leveldb.LevelDB(path + '_relations.ldb')
+        self._single_writers = {
+            's': leveldb.LevelDB(path + '_subject.ldb'),
+            'o': leveldb.LevelDB(path + '_object.ldb'),
+            'p': leveldb.LevelDB(path + '_predicate.ldb'),
+        }
 
     def insert(self, **kwargs):
         assert set(kwargs.keys()) == {'s', 'p', 'o'}
         batch = leveldb.WriteBatch()
-        _insert_permutations(kwargs, batch)
-        self.db.Write(batch, sync=True)
+        _insert_permutations(kwargs, batch, self._single_writers)
+        self.relations_db.Write(batch, sync=True)
 
     def start(self, **kwargs):
-        return FixedPointTransaction(self.db, **kwargs)
+        return FixedPointTransaction(self.relations_db, **kwargs)
 
     def batch_insert(self):
-        return BatchInsertStatement(self.db)
+        return BatchInsertStatement(self.relations_db, self._single_writers)
+
+    def subjects(self, prefix=''):
+        for subject, _ in self._single_writers['s'].RangeIter(prefix):
+            yield subject
+
+    def objects(self, prefix=''):
+        for obj, _ in self._single_writers['o'].RangeIter(prefix):
+            yield obj
+
+    def predicates(self, prefix=''):
+        for predicate, _ in self._single_writers['p'].RangeIter(prefix):
+            yield predicate
